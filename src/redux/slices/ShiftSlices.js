@@ -1,15 +1,19 @@
 import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
-    shifts: [],
+    currenShifts: [],
+    allShifts: [],
 }
 export const ShiftSlices = createSlice({
     name: "shift",
     initialState,
     reducers: {
-        setShift: (state,action)=>{
-            state.shifts = action.payload
+        setCurrenShifts: (state,action)=>{
+            state.currenShifts = action.payload
+        },
+        setAllShifts: (state,action)=>{
+            state.allShifts = action.payload
         }
     }
 })
-export const {setShift} = ShiftSlices.actions;
+export const {setCurrenShifts,setAllShifts} = ShiftSlices.actions;
 export default ShiftSlices.reducer;

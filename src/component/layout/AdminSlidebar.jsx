@@ -21,6 +21,47 @@ function getItem(label, key, icon, children, type) {
     };
 }
 const items = [
+    getItem(<button>
+        <NavLink
+            to="/dashboard"
+        >  Dashboard
+        </NavLink>
+    </button>, '1', <PieChartOutlined />),
+
+    getItem('All', '3', <ContainerOutlined />, [
+        getItem(
+            <button>
+                <NavLink to="/report-list"
+                > All Report
+                </NavLink>
+            </button>, '31'),
+        getItem(
+            <button>
+                <NavLink to="/user-list"
+                > All User
+                </NavLink>
+            </button>, '32'),
+        getItem(
+            <button>
+                <NavLink to="/subject-list"
+                > All Subject
+                </NavLink>
+            </button>, '33'),
+        getItem(
+            <button>
+                <NavLink to="/shift-list"
+                > All Shift
+                </NavLink>
+            </button>, '34'),
+            getItem(
+                <button>
+                    <NavLink to="/room-list"
+                    > All Room
+                    </NavLink>
+                </button>, '34'),
+
+    ]),
+
     getItem('Report', 'sub1', <MailOutlined />, [
         getItem(
             <button>
@@ -54,8 +95,7 @@ const userRole = localStorage.getItem('user_role');
 const filterItemsByRole = (items, userRole) => {
     return items.filter((item) => !item.role || item.role === userRole);
 };
-
-const Slidebaes = () => {
+const AdminSlidebar = () => {
     const [collapsed, setCollapsed] = useState(false);
     const toggleCollapsed = () => {
         setCollapsed(!collapsed);
@@ -84,4 +124,4 @@ const Slidebaes = () => {
     );
 }
 
-export default Slidebaes;
+export default AdminSlidebar;

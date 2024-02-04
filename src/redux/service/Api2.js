@@ -6,7 +6,6 @@ const api2 = axios.create({
         "Accept": "application/json",
         "Content-Type": "application/json",
     },
-    withCredentials: true, // Add this line
 });
 
 api2.interceptors.request.use((s) => {
