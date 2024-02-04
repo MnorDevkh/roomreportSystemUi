@@ -16,6 +16,8 @@ import AllShiftLishComponent from './component/shift/AllShiftLishComponent';
 import AllSubjectComponent from './component/subject.jsx/AllSubjectComponent';
 import RoomComponent from './component/room/RoomComponent';
 import AllUserComponent from './component/user/AllUserComponent';
+import SignUpComponents from './component/signUp/SignUpComponents';
+
 function App() {
   const user = localStorage.getItem("token")
   // useLayoutEffect(() => {
@@ -26,6 +28,7 @@ function App() {
       <Routes >
         <Route path='/' element={<HomePage />} />
         <Route path='/signin' element={<LoginComponent />} />
+        <Route path='/signup' element={<SignUpComponents />} />
         <Route element={<ProtectedRoute isLogged={localStorage.getItem("token") ? true : false} />}>
           <Route path="/" element={<MainComponent />}>
             <Route path='/dashboard' element={<Dashboard />} />
