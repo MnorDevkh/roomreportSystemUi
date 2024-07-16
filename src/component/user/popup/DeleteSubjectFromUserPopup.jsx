@@ -4,11 +4,17 @@ import UserService from '../../../redux/service/UserService';
 import { useDispatch, useSelector } from 'react-redux';
 import ShiftService from '../../../redux/service/ShiftService';
 import { setAllShifts } from '../../../redux/slices/ShiftSlices';
-const AddShiftToUserComponent = ({ isOpen, onCancel, userIdForShift }) => {
+import { setAllUser, setUserById } from '../../../redux/slices/UserSlice';
+
+
+const DeleteSubjectFromUserPopup = ({ isOpen, onCancel, userIdForSubject }) => {
     const dispatch = useDispatch();
     const [isModalOpenSubject, setIsModalOpenSubject] = useState(false);
-    const resData = useSelector((state) => state.shift.allShifts)
-    console.log(resData)
+
+    const UserData = useSelector((state) => state.user.userById);
+    // const ShiftData = useSelector((state) => state.shift.allShifts)
+
+    console.log(UserData)
     const onFinishFailed = (errorInfo) => {
         console.log('Failed:', errorInfo);
     };
@@ -19,45 +25,36 @@ const AddShiftToUserComponent = ({ isOpen, onCancel, userIdForShift }) => {
             onCancel();
         }
     };
-
-
-    // get all shift
-    const handleGetShift = () => {
-        ShiftService.getAllShift().then(res => {
-            console.log("123res", res.data.data)
-            dispatch(setAllShifts(res.data.data))
+    // handle get user
+    const handleGetUser = () => {
+        UserService.getUserById(userIdForSubject).then((res) => {
+            dispatch(setUserById(res.data.data));
         })
     }
     useEffect(() => {
-        handleGetShift()
+        // handleGetShift();
+        handleGetUser()
     }, [])
     const onFinish = (values) => {
-        const selectedShiftId = values.shift;
-        const data = {
-            user: userIdForShift,
-            shift: selectedShiftId
-        }
-        UserService.addShifToUser(data).then((res)=>{
+    
+       const subjectId = values.subject
+       const userId = userIdForSubject
+       console.log("userIdForDeleteSubject", userIdForSubject)
+       console.log("values.subject", values)
+   
+        UserService.deleteSubjectFromUser(userId,subjectId).then((res) => {
             onCancel();
-        }).catch((error)=>{
+            message.success('User already delete');
+        }).catch((error) => {
             if (error.response && error.response.status === 409) {
                 // HTTP 409 indicates a conflict
-                message.error('Conflict: User already associated with this subject');
+                message.error('Conflict: User already associated with this shift');
             } else {
                 console.error('Error:', error.message);
                 // Handle other types of errors here
             }
         })
 
-        // ShiftService.addNewShift(values).then((res) => {
-        //   setIsModalOpen(false);
-        //   handleCancel(); // You may want to set this to true after the form is successfully submitted.
-        // })
-        // .catch((error) => {
-        //   console.log("Error:", error);
-        //   // Handle error as needed
-        // });
-        // console.log(values)
     };
     const initialValue = {
 
@@ -67,7 +64,7 @@ const AddShiftToUserComponent = ({ isOpen, onCancel, userIdForShift }) => {
     }, [])
     return (
         <div>
-            <Modal title="Add Shift to User" visible={isOpen} onCancel={handleCancel} footer={null}>
+            <Modal title="Delete Subject from User" visible={isOpen} onCancel={handleCancel} footer={null}>
                 <Form
                     name="basic"
                     labelCol={{
@@ -87,8 +84,8 @@ const AddShiftToUserComponent = ({ isOpen, onCancel, userIdForShift }) => {
                     autoComplete="off"
                 >
                     <Form.Item
-                        label="Shift"
-                        name="shift"
+                        label="Subject"
+                        name="subject"
                         initialValue={initialValue}
                         rules={[
                             {
@@ -98,29 +95,34 @@ const AddShiftToUserComponent = ({ isOpen, onCancel, userIdForShift }) => {
                         ]}
                     >
                         <Select>
-                            {resData.slice().reverse().map((item) => (
-                                <Select.Option key={item.id} value={item.id}>
-                                    {item.name}
-                                </Select.Option>
-                            ))}
+                            {/* {UserData.slice().reverse().map((user) => (
+                                // Use parentheses instead of curly braces to implicitly return JSX
+                                user.subject.map((subjectid) => (
+                                    <Select.Option key={subjectid.id} value={subjectid.id}>
+                                        {subjectid.name}
+                                    </Select.Option>
+                                ))
+                            ))} */}
                         </Select>
-                </Form.Item>
 
 
-                <Form.Item
-                    wrapperCol={{
-                        offset: 8,
-                        span: 16,
-                    }}
-                >
-                    <Button type="default" htmlType="submit">
-                        Submit
-                    </Button>
-                </Form.Item>
-            </Form>
-        </Modal>
+                    </Form.Item>
+
+
+                    <Form.Item
+                        wrapperCol={{
+                            offset: 8,
+                            span: 16,
+                        }}
+                    >
+                        <Button type="default" htmlType="submit">
+                            Submit
+                        </Button>
+                    </Form.Item>
+                </Form>
+            </Modal>
         </div >
     );
 }
 
-export default AddShiftToUserComponent;
+export default DeleteSubjectFromUserPopup;

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Popconfirm, Space, Table } from 'antd';
+import { Button, Popconfirm, Space, Table, message } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import SubjectService from '../../redux/service/SubjectSevice';
 import SubjectSlices, { setAllSubject } from '../../redux/slices/SubjectSlices';
@@ -34,7 +34,7 @@ const AllSubjectComponent = () => {
     const handleDelete = (id) => {
         console.log(id)
         SubjectService.deleteById(id).then((res) => {
-
+            message.success('subject deleted');
         })
     }
 

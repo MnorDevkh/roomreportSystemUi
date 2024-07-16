@@ -88,7 +88,7 @@ const AllShiftLishComponent = () => {
         name: item.name,
         description: item.description,
         date: item.date,
-
+        
     }
     ));
 

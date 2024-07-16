@@ -1,4 +1,3 @@
-
 import { setReport } from '../../redux/slices/ReportSlices';
 import { useDispatch, useSelector } from 'react-redux';
 import ReportServices from '../../redux/service/ReportServices';
@@ -14,53 +13,27 @@ const ReportListCompont = () => {
   const [isOpenEdit, setIsOpenEdit] = useState(false);
   const [id, setid] = useState()
   const resData = useSelector((state) => state.report.reports);
-
-  console.log("resData", resData);
+  console.log(dateRange);
   // get report list
   const handleGetReportList = () => {
     try {
-
-      // const startDate = dateRange ? dateRange[0].format('YYYY-MM-DD') : null;
-      // const endDate = dateRange ? dateRange[1].format('YYYY-MM-DD') : null;
-
-      ReportServices.getAllReport().then((res) => {
-        dispatch(setReport(res.data.payload));
-        console.log("res", res.data.payload);
+      ReportServices.getAllReport(1,10,"id",true).then((res) => {
+        dispatch(setReport(res.data));
+        console.log("res", res.data);
       });
     } catch (error) {
       console.log("Error fetching report:", error);
     }
   };
 
+  // const startDate = dateRange[0].format('YYYY-MM-DD');
+  // const endDate = dateRange[1].format('YYYY-MM-DD');
 
-  const handleFilteredData = () => {
-    try {
-      if (dateRange) {
-        const startDate = dateRange[0].format('YYYY-MM-DD');
-        const endDate = dateRange[1].format('YYYY-MM-DD');
-
-        const filteredReports = resData.filter(
-          (item) => item.date >= startDate && item.date <= endDate
-        );
-
-        setFilteredData(filteredReports);
-      } else {
-        setFilteredData(null);
-      }
-    } catch (error) {
-      console.log("Error filtering reports:", error);
-    }
-  }
-
-  useEffect(() => {
+  useEffect(()=>{
     handleGetReportList();
-    handleFilteredData();
-  }, [dateRange]);
+  },[])
 
-  const displayData = dateRange ? filteredData : resData;
-
-
-  if (!displayData) {
+  if (!resData) {
     // Handle the case where resData is undefined or null
     return <p>Loading...</p>;
   }
@@ -71,29 +44,14 @@ const ReportListCompont = () => {
     }).catch((e) => {
 
     })
-    console.log('Delete report:', record);
   };
   //Edit 
   const handleEdit = (record) => {
     setIsOpenEdit(true)
     setid(record)
+    console.log(record);
   }
-  const items = [
-    {
-      key: '1',
-      label: 'Action 1',
-      render: (_, record) => (
-        <Space size="middle">
-          <a onClick={() => handleEdit(record.key)}>Edit</a>
-          <Popconfirm title="Sure to delete?" onConfirm={() => handleDelete(record.key)}><a>Delete</a></Popconfirm>
-        </Space>
-      ),
-    },
-    {
-      key: '2',
-      label: 'Action 2',
-    },
-  ];
+  
 
   const columns = [
     {
@@ -138,9 +96,14 @@ const ReportListCompont = () => {
       key: 'student',
     },
     {
-      title: 'Date',
-      dataIndex: 'date',
-      key: 'date',
+      title: 'Create Date',
+      dataIndex: 'createDate',
+      key: 'createDate',
+    },
+    {
+      title: 'Report Date',
+      dataIndex: 'reportDate',
+      key: 'reportDate',
     },
     {
       title: 'Action',
@@ -159,18 +122,19 @@ const ReportListCompont = () => {
     pageSizeOptions: ['10', '20', '50'],
   };
 
-  const data = displayData.slice().reverse().map((item) => ({
+  const data = resData.map((item) => ({
     key: item.id, // Assuming there's an 'id' property in your data
     lecture: item.user.firstName,
     subject: item.subject.name,
     shift: item.shift.name,
     student: item.studentNum,
-    date: item.date,
+    createDate: item.createDate,
+    reportDate: item.reportDate,
     room: item.room,
     // Assuming 'action' property is available in your data
     action: item.action,
   }))
-  // add model
+
   const handleOk = () => {
     setIsOpenEdit(false)
     // Additional logic when modal is OK
@@ -180,6 +144,7 @@ const ReportListCompont = () => {
     setIsOpenEdit(false)
     // Additional logic when modal is canceled
   };
+  
 
   return (
 
@@ -190,17 +155,17 @@ const ReportListCompont = () => {
           style={{ marginBottom: '16px' }}
         />
         <div className='m-left'>
-          {displayData && (
+          {resData && (
             <Statistic
               title="Number of Records"
-              value={displayData.length + " " + "Report"}
+              value={resData.length + " " + "Report"}
               style={{ marginLeft: '16px' }}
             />
           )}
         </div>
 
       </div>
-      <EditReport isOpen={isOpenEdit} onOk={handleOk} onCancel={handleCancel} id={id} />
+      <EditReport isOpen={isOpenEdit} onOk={handleOk} onCancel={handleCancel} reportId={id} />
       <Table columns={columns} dataSource={data} pagination={pagination} />
     </div>
   )

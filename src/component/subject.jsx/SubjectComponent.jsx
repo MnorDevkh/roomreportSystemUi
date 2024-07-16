@@ -14,17 +14,13 @@ const SubjectComponent = () => {
     const handleGetSubject = () => {
         SubjectService.getAllCurrentSubject().then(res => {
             try {
-                console.log("getAllSubject", res.data.data.payload)
-                dispatch(setCurrentSubject(res.data.data.payload))
+                console.log("getAllSubject", res.data)
+                // dispatch(setCurrentSubject(res.data.data))
             } catch { }
         })
     }
     useEffect(() => {
-        
-        const intervalId = setInterval(() => {
-            handleGetSubject();
-        }, 2000);
-        return () => clearInterval(intervalId);
+        handleGetSubject();
     }, [])
 
     const pagination = {
@@ -60,7 +56,6 @@ const SubjectComponent = () => {
         name: item.name,
         description: item.description,
         date: item.date,
-
     }
     ));
 

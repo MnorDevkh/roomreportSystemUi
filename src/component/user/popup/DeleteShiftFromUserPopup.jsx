@@ -4,11 +4,17 @@ import UserService from '../../../redux/service/UserService';
 import { useDispatch, useSelector } from 'react-redux';
 import ShiftService from '../../../redux/service/ShiftService';
 import { setAllShifts } from '../../../redux/slices/ShiftSlices';
-const AddShiftToUserComponent = ({ isOpen, onCancel, userIdForShift }) => {
+import { setAllUser, setUserById } from '../../../redux/slices/UserSlice';
+
+
+const DeleteShiftFromUserPopup = ({ isOpen, onCancel, userIdForShift }) => {
     const dispatch = useDispatch();
     const [isModalOpenSubject, setIsModalOpenSubject] = useState(false);
-    const resData = useSelector((state) => state.shift.allShifts)
-    console.log(resData)
+
+    const UserData = useSelector((state) => state.user.userById);
+    const ShiftData = useSelector((state) => state.shift.allShifts)
+
+    console.log(UserData)
     const onFinishFailed = (errorInfo) => {
         console.log('Failed:', errorInfo);
     };
@@ -19,6 +25,12 @@ const AddShiftToUserComponent = ({ isOpen, onCancel, userIdForShift }) => {
             onCancel();
         }
     };
+    // handle get user
+    const handleGetUser = () => {
+        UserService.getUserById(userIdForShift).then((res) => {
+            dispatch(setUserById(res.data.data));
+        })
+    }
 
 
     // get all shift
@@ -29,35 +41,27 @@ const AddShiftToUserComponent = ({ isOpen, onCancel, userIdForShift }) => {
         })
     }
     useEffect(() => {
-        handleGetShift()
+        handleGetShift();
+        handleGetUser()
     }, [])
     const onFinish = (values) => {
-        const selectedShiftId = values.shift;
-        const data = {
-            user: userIdForShift,
-            shift: selectedShiftId
-        }
-        UserService.addShifToUser(data).then((res)=>{
+    
+       const shiftId = values.shift
+       const userId = userIdForShift
+   
+        UserService.deleteShiftFromUser(userId,shiftId).then((res) => {
             onCancel();
-        }).catch((error)=>{
+            message.success('User already delete');
+        }).catch((error) => {
             if (error.response && error.response.status === 409) {
                 // HTTP 409 indicates a conflict
-                message.error('Conflict: User already associated with this subject');
+                message.error('Conflict: User already associated with this shift');
             } else {
                 console.error('Error:', error.message);
                 // Handle other types of errors here
             }
         })
 
-        // ShiftService.addNewShift(values).then((res) => {
-        //   setIsModalOpen(false);
-        //   handleCancel(); // You may want to set this to true after the form is successfully submitted.
-        // })
-        // .catch((error) => {
-        //   console.log("Error:", error);
-        //   // Handle error as needed
-        // });
-        // console.log(values)
     };
     const initialValue = {
 
@@ -67,7 +71,7 @@ const AddShiftToUserComponent = ({ isOpen, onCancel, userIdForShift }) => {
     }, [])
     return (
         <div>
-            <Modal title="Add Shift to User" visible={isOpen} onCancel={handleCancel} footer={null}>
+            <Modal title="Delete Shift from User" visible={isOpen} onCancel={handleCancel} footer={null}>
                 <Form
                     name="basic"
                     labelCol={{
@@ -97,30 +101,35 @@ const AddShiftToUserComponent = ({ isOpen, onCancel, userIdForShift }) => {
                             },
                         ]}
                     >
-                        <Select>
-                            {resData.slice().reverse().map((item) => (
-                                <Select.Option key={item.id} value={item.id}>
-                                    {item.name}
-                                </Select.Option>
+                        {/* <Select>
+                            {UserData.slice().reverse().map((user) => (
+                                // Use parentheses instead of curly braces to implicitly return JSX
+                                user.shift.map((shiftit) => (
+                                    <Select.Option key={shiftit.id} value={shiftit.id}>
+                                        {shiftit.name}
+                                    </Select.Option>
+                                ))
                             ))}
-                        </Select>
-                </Form.Item>
+                        </Select> */}
 
 
-                <Form.Item
-                    wrapperCol={{
-                        offset: 8,
-                        span: 16,
-                    }}
-                >
-                    <Button type="default" htmlType="submit">
-                        Submit
-                    </Button>
-                </Form.Item>
-            </Form>
-        </Modal>
+                    </Form.Item>
+
+
+                    <Form.Item
+                        wrapperCol={{
+                            offset: 8,
+                            span: 16,
+                        }}
+                    >
+                        <Button type="default" htmlType="submit">
+                            Submit
+                        </Button>
+                    </Form.Item>
+                </Form>
+            </Modal>
         </div >
     );
 }
 
-export default AddShiftToUserComponent;
+export default DeleteShiftFromUserPopup;

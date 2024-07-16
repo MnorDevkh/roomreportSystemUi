@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Modal, Form, Select, Button, Input, Space, Switch, Alert, notification } from 'antd';
+import { Modal, Form, Select, Button, Input, Space, Switch, Alert, notification, message } from 'antd';
 import ShiftService from '../../../redux/service/ShiftService';
 
 
@@ -22,21 +22,14 @@ const AddShift = ({ isOpen, onCancel }) => {
   const onFinish = (values) => {
     ShiftService.addNewShift(values).then((res) => {
       setIsModalOpen(false);
-      showNotification();
+     message.success("add shift success!")
       handleCancel(); // You may want to set this to true after the form is successfully submitted.
     })
     .catch((error) => {
       console.log("Error:", error);
-      // Handle error as needed
     });
   };
-  const showNotification = () => {
-    notification.info({
-      message: `add new Shift successfully`,
-      description: 'Hello, Ant Design!!',
-      placement: 'topRight',
-    });
-  };
+  ;
   return (
 
     <div>

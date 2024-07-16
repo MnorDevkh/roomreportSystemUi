@@ -9,16 +9,13 @@ const ShiftListComponent = () => {
     const resData = useSelector((state) => state.shift.currenShifts)
     // get all shift
     const handleGetShift = () => {
-        ShiftService.getCurrenShift().then(res => {
-            console.log(res.data.data.payload)
-            dispatch(setCurrenShifts(res.data.data.payload))
+        ShiftService.getCurrenShift(1,10,"id",false).then(res => {
+            console.log(res.data.data)
+            dispatch(setCurrenShifts(res.data.data))
         })
     }
     useEffect(() => {
-        const intervalId = setInterval(() => {
-            handleGetShift();
-        }, 2000);
-        return () => clearInterval(intervalId);
+        handleGetShift();
     }, [])
     const pagination = {
         defaultPageSize: 10,
@@ -52,7 +49,7 @@ const ShiftListComponent = () => {
         },
     ];
     console.log(resData)
-    const data = resData.slice().reverse().map((item, index) => ({
+    const data = resData?.map((item, index) => ({
         key: index,
         name: item.name,
         description: item.description,

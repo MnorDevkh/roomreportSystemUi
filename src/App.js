@@ -17,6 +17,7 @@ import AllSubjectComponent from './component/subject.jsx/AllSubjectComponent';
 import RoomComponent from './component/room/RoomComponent';
 import AllUserComponent from './component/user/AllUserComponent';
 import SignUpComponents from './component/signUp/SignUpComponents';
+import ExamFormComponent from './component/examForm/ExamFormComponent';
 
 function App() {
   const user = localStorage.getItem("token")
@@ -27,8 +28,8 @@ function App() {
     <>
       <Routes >
         <Route path='/' element={<HomePage />} />
-        <Route path='/signin' element={<LoginComponent />} />
-        <Route path='/signup' element={<SignUpComponents />} />
+        <Route path='/sign-in' element={<LoginComponent />} />
+        <Route path='/sign-up' element={<SignUpComponents />} />
         <Route element={<ProtectedRoute isLogged={localStorage.getItem("token") ? true : false} />}>
           <Route path="/" element={<MainComponent />}>
             <Route path='/dashboard' element={<Dashboard />} />
@@ -42,6 +43,7 @@ function App() {
             <Route path='/subject-list' element={<AllSubjectComponent/>} />
             <Route path='/room-list' element={<RoomComponent/>} />
             <Route path='/user-list' element={<AllUserComponent/>} />
+            <Route path='/exam_form' element={<ExamFormComponent/>} />
           </Route>
         </Route>
       </Routes >

@@ -8,7 +8,7 @@ const EditComponent = ({ isOpen, onCancel, recordAction, userId }) => {
     const [isModalOpenEdit, setIsModalOpenEdit] = useState(false);
     const dispatch = useDispatch();
     const resData = useSelector((state) => state.user.allUser);
-    const filteredUser = resData.find(user => user.id === userId);
+    // const filteredUser = resData.find(user => user.id === userId);
 
     // Fetch user data when the component mounts
     useEffect(() => {
@@ -28,6 +28,7 @@ const EditComponent = ({ isOpen, onCancel, recordAction, userId }) => {
 
     const handleCancel = () => {
         setIsModalOpenEdit(false);
+        console.log("1000");
         // You can call the onCancel function here if needed
         if (onCancel) {
             onCancel();
@@ -54,7 +55,7 @@ const EditComponent = ({ isOpen, onCancel, recordAction, userId }) => {
                 </Button>,
             ]}
         >
-            {filteredUser ? (
+            {/* {filteredUser ? (
                 <div>
                     <h2 className="text-xl">Full Name: {filteredUser.firstName && filteredUser.firstName.charAt(0).toUpperCase() + filteredUser.firstName.slice(1)} {filteredUser.lastName && filteredUser.lastName.charAt(0).toUpperCase() + filteredUser.lastName.slice(1)}</h2>
                     
@@ -78,7 +79,7 @@ const EditComponent = ({ isOpen, onCancel, recordAction, userId }) => {
                 </div>
             ) : (
                 <p>Loading user data...</p>
-            )}
+            )} */}
         </Modal>
     );
 };

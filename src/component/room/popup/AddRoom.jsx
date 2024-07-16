@@ -1,4 +1,4 @@
-import { Button, Form, Input, Modal, Select } from 'antd';
+import { Button, Form, Input, Modal, Select, message } from 'antd';
 import React, { useState } from 'react';
 import RoomService from '../../../redux/service/RoomService';
 
@@ -17,6 +17,7 @@ const AddRoom = ({ isOpen, onCancel }) => {
         console.log(values)
         RoomService.addNewShift(values).then((res) => {
             setIsModalOpen(false);
+            message.success("Add Room success")
             handleCancel(); // You may want to set this to true after the form is successfully submitted.
         })
             .catch((error) => {

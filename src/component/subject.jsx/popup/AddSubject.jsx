@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import React from 'react';
-import { Modal, Button, Form, Input, Select, Space } from 'antd';
+import { Modal, Button, Form, Input, Select, Space, message } from 'antd';
 import ShiftService from '../../../redux/service/ShiftService';
 import SubjectService from '../../../redux/service/SubjectSevice';
 
@@ -46,8 +46,18 @@ const AddSubject = ({ isOpen, onOk, onCancel }) => {
     const onFinish = (values) => {
       console.log(values);
       SubjectService.AddSubect(values).then((res)=>{
-        console.log(res)
-      })
+        message.success('subject create');
+        onOk();
+        form.resetFields();
+      }).catch((error) => {
+        if (error.response && error.response.status === 409) {
+            // HTTP 409 indicates a conflict
+            message.error('subject create false');
+        } else {
+            console.error('Error:', error.message);
+            // Handle other types of errors here
+        }
+    })
     };
     const onReset = () => {
       form.resetFields();

@@ -1,272 +1,239 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, Button, Form, Input, Select, Space } from 'antd';
-import RoomService from '../../../redux/service/RoomService';
+import { Modal, Button, Form, Input, Select, message } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
+import RoomService from '../../../redux/service/RoomService';
 import { setRoom } from '../../../redux/slices/RoomSlices';
-
 import ShiftService from '../../../redux/service/ShiftService';
 import { setCurrenShifts } from '../../../redux/slices/ShiftSlices';
 import ReportServices from '../../../redux/service/ReportServices';
 import SubjectService from '../../../redux/service/SubjectSevice';
 import { setCurrentSubject } from '../../../redux/slices/SubjectSlices';
+import { addReport } from '../../../redux/slices/ReportSlices';
 
 const AddReport = ({ isOpen, onOk, onCancel }) => {
+    const [form] = Form.useForm();
+    const dispatch = useDispatch();
 
+    // Fetch and dispatch room, shift, and subject data
+    useEffect(() => {
+        const fetchRoomData = async () => {
+            try {
+                const res = await RoomService.getAllRoom();
+                dispatch(setRoom(res.data.data));
+            } catch (error) {
+                console.error("Error fetching rooms:", error);
+            }
+        };
 
-  //user
-  const userId = localStorage.getItem("userId");
+        const fetchShiftData = async () => {
+            try {
+                const res = await ShiftService.getCurrenShift();
+                dispatch(setCurrenShifts(res.data.data.payload));
+            } catch (error) {
+                console.error("Error fetching shifts:", error);
+            }
+        };
 
-  // get all room
-  const handleGetRoom = () => {
-    RoomService.getAllRoom().then(res => {
-      console.log(res.data.data);
-      dispatch(setRoom(res.data.data));
-    });
-  };
+        const fetchSubjectData = async () => {
+            try {
+                const res = await SubjectService.getAllCurrentSubject();
+                dispatch(setCurrentSubject(res.data.data.payload));
+            } catch (error) {
+                console.error("Error fetching subjects:", error);
+            }
+        };
 
-  // get all shift
-  const handleGetShift = () => {
-    ShiftService.getCurrenShift().then(res => {
-      console.log(res.data.data.payload);
-      dispatch(setCurrenShifts(res.data.data.payload));
-    });
-  };
+        fetchRoomData();
+        fetchShiftData();
+        fetchSubjectData();
+    }, [dispatch]);
 
-  // get all Subject
-  const handleGetSubject = () => {
-    SubjectService.getAllCurrentSubject().then(res => {
-        console.log("getAllSubject", res.data.data.payload)
-        dispatch(setCurrentSubject(res.data.data.payload))
-    })
-}
+    const roomOptions = useSelector((state) => state.room.rooms);
+    const subjectOptions = useSelector((state) => state.subject.currentUserSubjects);
+    const shiftOptions = useSelector((state) => state.shift.currenShifts);
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
+    const roomOption = roomOptions?.map(item => ({
+        value: item.id,
+        label: item.name,
+    }));
 
-  const showModal = () => {
-    setIsModalOpen(true);
-  };
+    const subjectOption = subjectOptions?.map((item) => ({
+        value: item.id,
+        label: item.name,
+    }));
 
-  const handleOk = () => {
-    setIsModalOpen(false);
-    // You can call the onOk function here if needed
-    if (onOk) {
-      onOk();
-    }
-  };
+    const shiftOption = shiftOptions?.map(item => ({
+        value: item.id,
+        label: item.name,
+    }));
 
-  const handleCancel = () => {
-    setIsModalOpen(false);
-    // You can call the onCancel function here if needed
-    if (onCancel) {
-      onCancel();
-    }
-  };
+    const [selectedSubject, setSelectedSubject] = useState('');
+    const [selectedRoom, setSelectedRoom] = useState('');
+    const [selectedShift, setSelectedShift] = useState('');
+    const [selectedStudentNum, setSelectedStudentNum] = useState('');
+    const [selectedDate, setSelectedDate] = useState('');
 
-  const dispatch = useDispatch();
-  const roomOptions = useSelector((state) => state.room.rooms);
-  const roomOption = roomOptions.slice().reverse().map(item => ({
-    value: item.id,
-    label: item.name,
-  }));
-
-  const subjectOptions = useSelector((state) => state.subject.currentUserSubjects);
-  console.log("subjectOptions", subjectOptions)
-
-  const subjectOption = subjectOptions.slice().reverse().map((item) => ({
-    value: item.id,
-    label: item.name,
-  }));
-
-  const shiftOptions = useSelector((state) => state.shift.currenShifts);
-  const shiftOption = shiftOptions.slice().reverse().map(item => ({
-    value: item.id,
-    label: item.name,
-  }));
-
-
-
-
-  const [selectedSubject, setSelectedSubject] = useState('');
-  const [selectedRoom, setSelectedRoom] = useState('');
-  const [selectedShift, setSelectedShift] = useState('');
-  const [selectedStudentNum, setSelectedStudentNum] = useState('');
-  const [selectedDate, setSelectedDate] = useState('');
-
-  const handleInputChange = (name, value) => {
-    switch (name) {
-      case 'subject':
-        setSelectedSubject(value);
-        break;
-      case 'room':
-        setSelectedRoom(value);
-        break;
-      case 'shift':
-        setSelectedShift(value);
-        break;
-      case 'studentNum':
-        setSelectedStudentNum(value);
-        break;
-      case 'date':
-        setSelectedDate(value);
-        break;
-      default:
-        break;
-    }
-  };
-
-  const handleSubmit = (values) => {
-    const apiData = {
-      subjectId: values.select1,
-      userId: userId,
-      roomIds: values.select2,
-      shiftId: values.select3,
-      date: values.date,
-      studentNum: values.studentNum,
+    const handleInputChange = (name, value) => {
+        switch (name) {
+            case 'subject':
+                setSelectedSubject(value);
+                break;
+            case 'room':
+                setSelectedRoom(value);
+                break;
+            case 'shift':
+                setSelectedShift(value);
+                break;
+            case 'studentNum':
+                setSelectedStudentNum(value);
+                break;
+            case 'date':
+                setSelectedDate(value);
+                break;
+            default:
+                break;
+        }
     };
 
-    ReportServices.postReport(apiData).then((res) => {
-      console.log('API Response:', res.data);
-      setSelectedSubject('');
-      setSelectedRoom('');
-      setSelectedShift('');
-      setSelectedStudentNum('');
-      setSelectedDate('');
-      handleOk(); // Close the modal if needed
-    });
+    const handleSubmit = async (values) => {
+        const apiData = {
+            subjectId: values.select1,
+            roomIds: values.select2,
+            shiftId: values.select3,
+            date: values.date,
+            studentNum: values.studentNum,
+        };
 
-    console.log('Form data submitted:', apiData);
-  };
-  useEffect(() => {
-    handleGetRoom();
-    handleGetShift();
-    handleGetSubject();
+        try {
+            const res = await ReportServices.postReport(apiData);
+            message.success('Report created');
+            dispatch(addReport(res.data)); // Dispatch the new report to the Redux store
+            form.resetFields();
+            handleOk();
+        } catch (error) {
+            if (error.response && error.response.status === 409) {
+                message.error('Report creation failed - Conflict');
+            } else {
+                console.error('Error:', error.message);
+                // Handle other types of errors here
+            }
+        }
+    };
 
-  }, []);
-  return (
-    <div>
-      <Modal title="Report" visible={isOpen} onOk={handleOk} onCancel={handleCancel} footer={null}>
-        <div className=''>
-          <div className="flex justify-center w-full">
-            <div>
-              <Form className="report-form w-96" onFinish={handleSubmit}>
-                <Form.Item
-                  name="select1"
-                  label="Select"
-                  hasFeedback
-                  rules={[{ required: true, message: 'select is required' }]}
-                >
-                  <Select
-                    mode="single"
-                    placeholder="Select subject"
-                    value={selectedSubject}
-                    onChange={(value) => handleInputChange('subject', value)}
-                    showSearch
+    const handleOk = () => {
+        form.resetFields();
+        if (onOk) {
+            onOk();
+        }
+    };
 
-                    filterOption={(input, option) =>
-                      option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                    }
-                    style={{
-                      width: '100%',
-                    }}
-                    options={subjectOption}
-                  />
-                </Form.Item>
+    const handleCancel = () => {
+        form.resetFields();
+        if (onCancel) {
+            onCancel();
+        }
+    };
 
-                <Form.Item
-                  name="select2"
-                  label="Select"
-                  hasFeedback
-                  rules={[{ required: true, message: 'select is required' }]}
-                >
-                  <Select
-                    mode="multiple"
-                    placeholder="Select Room"
-                    value={selectedRoom}
-                    onChange={(value) => handleInputChange('room', value)}
-                    showSearch
-                    filterOption={(input, option) =>
-                      option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                    }
-                    style={{
-                      width: '100%',
-                    }}
-                    options={roomOption}
-                  />
-                </Form.Item>
-
-                <Form.Item
-                  name="select3"
-                  label="Select"
-                  hasFeedback
-                  rules={[{ required: true, message: 'select is required' }]}
-                >
-                  <Select
-                    mode="single"
-                    placeholder="Select shift"
-                    value={selectedShift}
-                    onChange={(value) => handleInputChange('shift', value)}
-                    showSearch
-                    filterOption={(input, option) =>
-                      option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                    }
-                    style={{
-                      width: '100%',
-                    }}
-                    options={shiftOption}
-                  />
-                </Form.Item>
-
-                <div className="flex">
-                  <div className='flex'>
+    return (
+        <div>
+            <Modal title="Add Report" visible={isOpen} onCancel={handleCancel} footer={null} className="w-96">
+                <Form className="report-form w-96" form={form} onFinish={handleSubmit}>
                     <Form.Item
-                      label="Input"
-                      name="studentNum"
-                      hasFeedback
-                      rules={[{ required: true, message: 'Input student number is required' }]}
+                        name="select1"
+                        label="Subject"
+                        hasFeedback
+                        rules={[{ required: true, message: 'Subject is required' }]}
                     >
-                      <Input
-                        type="text"
-                        id="studentNum"
+                        <Select
+                            placeholder="Select subject"
+                            value={selectedSubject}
+                            onChange={(value) => handleInputChange('subject', value)}
+                            showSearch
+                            filterOption={(input, option) =>
+                                option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                            }
+                            style={{ width: '100%' }}
+                            options={subjectOption}
+                        />
+                    </Form.Item>
+
+                    <Form.Item
+                        name="select2"
+                        label="Room"
+                        hasFeedback
+                        rules={[{ required: true, message: 'Room is required' }]}
+                    >
+                        <Select
+                            mode="multiple"
+                            placeholder="Select room"
+                            value={selectedRoom}
+                            onChange={(value) => handleInputChange('room', value)}
+                            showSearch
+                            filterOption={(input, option) =>
+                                option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                            }
+                            style={{ width: '100%' }}
+                            options={roomOption}
+                        />
+                    </Form.Item>
+
+                    <Form.Item
+                        name="select3"
+                        label="Shift"
+                        hasFeedback
+                        rules={[{ required: true, message: 'Shift is required' }]}
+                    >
+                        <Select
+                            placeholder="Select shift"
+                            value={selectedShift}
+                            onChange={(value) => handleInputChange('shift', value)}
+                            showSearch
+                            filterOption={(input, option) =>
+                                option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                            }
+                            style={{ width: '100%' }}
+                            options={shiftOption}
+                        />
+                    </Form.Item>
+
+                    <Form.Item
+                        label="Number of Students"
                         name="studentNum"
-                        value={selectedStudentNum}
-                        onChange={(e) => handleInputChange('studentNum', e.target.value)}
-                        placeholder="Number of student"
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                      />
-                    </Form.Item>
-                  </div>
-
-                  <div className='flex'>
-                    <Form.Item
-                      label="Input"
-                      name="date"
-                      hasFeedback
-                      rules={[{ required: true, message: 'Input date is required' }]}
+                        hasFeedback
+                        rules={[{ required: true, message: 'Number of students is required' }]}
                     >
-                      <Input
-                        type="date"
-                        id="date"
-                        name="date"
-                        value={selectedDate}
-                        onChange={(e) => handleInputChange('date', e.target.value)}
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                      />
+                        <Input
+                            type="text"
+                            value={selectedStudentNum}
+                            onChange={(e) => handleInputChange('studentNum', e.target.value)}
+                            placeholder="Number of students"
+                            className="bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                        />
                     </Form.Item>
-                  </div>
-                </div>
 
-                <div className='pt-5'>
-                  <Button type="default" htmlType="submit">
-                    Submit
-                  </Button>
-                </div>
-              </Form>
-            </div>
-          </div>
+                    <Form.Item
+                        label="Date"
+                        name="date"
+                        hasFeedback
+                        rules={[{ required: true, message: 'Date is required' }]}
+                    >
+                        <Input
+                            type="date"
+                            value={selectedDate}
+                            onChange={(e) => handleInputChange('date', e.target.value)}
+                            className="bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                        />
+                    </Form.Item>
+
+                    <div className='pt-5'>
+                        <Button type="default" htmlType="submit">
+                            Submit
+                        </Button>
+                    </div>
+                </Form>
+            </Modal>
         </div>
-      </Modal>
-    </div>
-  );
+    );
 }
 
 export default AddReport;

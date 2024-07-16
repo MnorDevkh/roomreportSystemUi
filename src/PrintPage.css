@@ -1,0 +1,25 @@
+@media print {
+    @page {
+        margin: 0; /* Remove default margins */
+    }
+    
+    body {
+        margin: 1cm; /* Adjust the margin as needed */
+    }
+    table, th, td {
+        border: 1px solid black !important;
+        box-shadow: none !important;
+    }
+    /* Hide header and footer */
+    header, footer {
+        display: none;
+    }
+}
+@media print {
+    .print-button {
+        display: none;
+    }
+}
+.printableArea{
+    font-family: battambang-bold;
+}

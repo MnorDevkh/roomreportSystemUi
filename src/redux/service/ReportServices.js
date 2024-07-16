@@ -2,9 +2,9 @@ import { addYears } from "flowbite-react/lib/esm/components/Datepicker/helpers";
 import Api from "./Api"
 import api2 from "./Api2"
 
-const getAllReport = async () => {
+const getAllReport = async (pageNumber  , pageSize , sortBy , ascending) => {
   try {
-      const response = await api2.get("/report/all");
+      const response = await api2.get(`/report/all?pageNumber=${pageNumber}&pageSize=${pageSize}&sortBy=${sortBy}&ascending=${ascending}`);
       return response.data;
   } catch (error) {
       // Handle errors
@@ -12,9 +12,9 @@ const getAllReport = async () => {
       throw error;
   }
 };
-const getReportCurrentUser = async () => {
+const getReportCurrentUser = async (pageNumber  , pageSize , sortBy , ascending) => {
   try {
-      const response = await api2.get("/report/by-currenUser")
+      const response = await api2.get(`/report/by-currenUser?pageNumber=${pageNumber}&pageSize=${pageSize}&sortBy=${sortBy}&ascending=${ascending}`);
       return response.data;
   } catch (error) {
       // Handle errors
