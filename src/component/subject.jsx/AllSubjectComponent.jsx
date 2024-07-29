@@ -17,27 +17,23 @@ const AllSubjectComponent = () => {
                 console.log("getAllSubject", res.data.data);
                 dispatch(setAllSubject(res.data.data));
             }).catch(error => {
-                console.error("Error in API request:", error.message);
-                // You can add additional error handling logic here, such as displaying an error message to the user.
             });
         } catch (error) {
-            console.error("Error in handleGetSubject:", error.message);
-            // You can add additional error handling logic here.
+    
         }
     }
     const handleEdit = (id) => {
         setIsOpenEdit(true);
         setId(id)
-        console.log("id", id)
+        handleGetSubject();
 
     }
     const handleDelete = (id) => {
-        console.log(id)
         SubjectService.deleteById(id).then((res) => {
             message.success('subject deleted');
+            handleGetSubject();
         })
     }
-
 
     const pagination = {
         defaultPageSize: 10,
@@ -83,13 +79,9 @@ const AllSubjectComponent = () => {
     ];
     useEffect(() => {
         handleGetSubject();
-        const intervalId = setInterval(() => {
-            handleGetSubject();
-        }, 2000);
-        return () => clearInterval(intervalId);
 
     }, [])
-    console.log(resData)
+    console.log("hello",resData)
     const data = resData.slice().reverse().map((item) => ({
         key: item.dataIndex,
         name: item.name,
@@ -108,14 +100,14 @@ const AllSubjectComponent = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const handleOk = () => {
+        handleGetSubject();
         setIsModalOpen(false);
-        // Additional logic when modal is OK
+        setIsOpenEdit(false);
     };
 
     const handleCancel = () => {
         setIsModalOpen(false);
-        setIsOpenEdit(false)
-        // Additional logic when modal is canceled
+        setIsOpenEdit(false);
     };
     return (
         <div>
@@ -123,7 +115,7 @@ const AllSubjectComponent = () => {
                 Add New Subject
             </Button>
             <AddSubject isOpen={isModalOpen} onOk={handleOk} onCancel={handleCancel} />
-            <EditeComponent isOpen={isOpenEdit} onCancel={handleCancel} id={id} />
+            <EditeComponent isOpen={isOpenEdit} onOk={handleOk} onCancel={handleCancel} id={id} />
             <Table columns={columns} dataSource={data} onChange={onChange} pagination={pagination} />
         </div>
     );

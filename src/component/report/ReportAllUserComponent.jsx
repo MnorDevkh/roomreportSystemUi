@@ -11,7 +11,7 @@ const ReportAllUserComponent = () => {
     const resData = useSelector((state) => state.report.reportCurrenUser);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isOpenEdit, setIsOpenEdit] = useState(false);
-    const [id, setid] = useState();
+    const [selectedReportId, setSelectedReportId] = useState(null);
 
     const handleGetReportList = () => {
         try {
@@ -31,15 +31,26 @@ const ReportAllUserComponent = () => {
         try {
             await ReportServices.deleteById(record);
             message.success('Report deleted');
-            handleGetReportList(); // Refresh the list after deletion
+            handleGetReportList();
         } catch (error) {
             message.error('Error deleting report');
         }
     };
 
+    const handleOk = () => {
+        setIsModalOpen(false);
+        setIsOpenEdit(false);
+        handleGetReportList();
+    };
+
+    const handleCancel = () => {
+        setIsModalOpen(false);
+        setIsOpenEdit(false);
+    };
+
     const handleEdit = (record) => {
         setIsOpenEdit(true);
-        setid(record);
+        setSelectedReportId(record.key);
     };
 
     const columns = [
@@ -88,7 +99,7 @@ const ReportAllUserComponent = () => {
             key: 'action',
             render: (_, record) => (
                 <Space size="middle">
-                    <a onClick={() => handleEdit(record.key)}>Edit</a>
+                    <a onClick={() => handleEdit(record)}>Edit</a>
                     <Popconfirm title="Sure to delete?" onConfirm={() => handleDelete(record.key)}>
                         <a>Delete</a>
                     </Popconfirm>
@@ -103,26 +114,17 @@ const ReportAllUserComponent = () => {
         pageSizeOptions: ['10', '20', '50'],
     };
 
-    const data = resData?.map((item) => ({
-        key: item.id,
-        lecture: item.user.firstName,
-        subject: item.subject.name,
-        shift: item.shift.name,
-        student: item.studentNum,
-        date: item.date,
-        room: item.room,
-    }));
-
-    const handleOk = () => {
-        setIsModalOpen(false);
-        setIsOpenEdit(false);
-        handleGetReportList(); // Refresh the list after adding/editing
-    };
-
-    const handleCancel = () => {
-        setIsModalOpen(false);
-        setIsOpenEdit(false);
-    };
+    const data = resData
+        ?.filter(item => item !== undefined)
+        .map((item) => ({
+            key: item.id,
+            lecture: item.user.firstName,
+            subject: item.subject.name,
+            shift: item.shift.name,
+            student: item.studentNum,
+            date: item.date,
+            room: item.room,
+        }));
 
     return (
         <div>
@@ -130,7 +132,7 @@ const ReportAllUserComponent = () => {
                 Add New Report
             </Button>
             <AddReport isOpen={isModalOpen} onOk={handleOk} onCancel={handleCancel} />
-            <EditReport isOpen={isOpenEdit} onOk={handleOk} onCancel={handleCancel} reportId={id} />
+            <EditReport isOpen={isOpenEdit} onOk={handleOk} onCancel={handleCancel} reportId={selectedReportId} />
             <Table columns={columns} dataSource={data} pagination={pagination} />
         </div>
     );

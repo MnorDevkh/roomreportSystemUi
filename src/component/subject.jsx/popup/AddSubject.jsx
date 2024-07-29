@@ -4,15 +4,11 @@ import { Modal, Button, Form, Input, Select, Space, message } from 'antd';
 import ShiftService from '../../../redux/service/ShiftService';
 import SubjectService from '../../../redux/service/SubjectSevice';
 
-
-  
 const AddSubject = ({ isOpen, onOk, onCancel }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-
   const handleOk = () => {
     setIsModalOpen(false);
-    // You can call the onOk function here if needed
     if (onOk) {
       onOk();
     }
@@ -20,7 +16,6 @@ const AddSubject = ({ isOpen, onOk, onCancel }) => {
 
   const handleCancel = () => {
     setIsModalOpen(false);
-    // You can call the onCancel function here if needed
     if (onCancel) {
       onCancel();
     }
@@ -45,17 +40,15 @@ const AddSubject = ({ isOpen, onOk, onCancel }) => {
     const [form] = Form.useForm();
     const onFinish = (values) => {
       console.log(values);
-      SubjectService.AddSubect(values).then((res)=>{
+      SubjectService.AddSubject(values).then((res)=>{
         message.success('subject create');
         onOk();
         form.resetFields();
       }).catch((error) => {
         if (error.response && error.response.status === 409) {
-            // HTTP 409 indicates a conflict
             message.error('subject create false');
         } else {
             console.error('Error:', error.message);
-            // Handle other types of errors here
         }
     })
     };
@@ -88,11 +81,6 @@ const AddSubject = ({ isOpen, onOk, onCancel }) => {
             <Form.Item
               name="description"
               label="Description"
-              rules={[
-                {
-                  // required: true,
-                },
-              ]}
             >
               <Input class="bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"/>
             </Form.Item>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Modal, Form, Select, Input, Button, message } from 'antd';
 import RoomService from '../../../redux/service/RoomService';
 import { useDispatch, useSelector } from 'react-redux';
@@ -12,169 +12,120 @@ import SubjectService from '../../../redux/service/SubjectSevice';
 
 const EditReport = ({ isOpen, onOk, onCancel, reportId }) => {
     const dispatch = useDispatch();
-    const [isOpenEdit, setIsOpenEdit] = useState(false);
-    // Define state variables and their setters
-    const [selectedSubject, setSelectedSubject] = useState('');
-    const [selectedRoom, setSelectedRoom] = useState('');
-    const [selectedShift, setSelectedShift] = useState('');
-    const [selectedStudentNum, setSelectedStudentNum] = useState('');
-    const [selectedDate, setSelectedDate] = useState('');
-
-    // Fetch report data by ID
-    const handleGetReportById = () => {
-        ReportServices.getReportById(reportId)
-            .then((res) => {
-                dispatch(setReportById(res.data));
-                console.log("res", res);
-            })
-            .catch((e) => {
-                console.log("error", e);
-            });
-    };
-
-    // Fetch room data
-    const handleGetRoom = () => {
-        RoomService.getAllRoom().then(res => {
-            console.log(res.data.data);
-            dispatch(setRoom(res.data.data));
-        });
-    };
-
-    // Fetch shift data
-    const handleGetShift = () => {
-        ShiftService.getCurrenShift(1, 10, "id", false)
-            .then(res => {
-                console.log(res.data.data);
-                dispatch(setCurrenShifts(res.data.data));
-            })
-            .catch((e) => {
-                console.log("Error fetching shifts:", e);
-            });
-    };
-
-    // Fetch subject data
-    const handleGetSubject = () => {
-        SubjectService.getAllCurrentSubject().then(res => {
-            console.log("getAllSubject", res.data.data);
-            dispatch(setCurrentSubject(res.data.data));
-        });
-    };
-
-    const roomOptions = useSelector((state) => state.room.rooms);
-    const roomOption = roomOptions.map(item => ({
-        value: item.id,
-        label: item.name,
-    }));
-
-    const subjectOptions = useSelector((state) => state.subject.currentUserSubjects);
-    const subjectOption = subjectOptions?.map((item) => ({
-        value: item.id,
-        label: item.name,
-    }));
-
-    const shiftOptions = useSelector((state) => state.shift.currenShifts)?.map((shift) => ({
-        value: shift.id,
-        label: shift.name,
-    })) || [];
-    
+    const [form] = Form.useForm();
     const values = useSelector((state) => state.report.reportById);
+    const roomOptions = useSelector((state) => state.room.rooms);
+    const subjectOptions = useSelector((state) => state.subject.currentUserSubjects);
+    const shiftOptions = useSelector((state) => state.shift.currenShifts);
 
-    // Effect to fetch data on component mount or when reportId changes
     useEffect(() => {
-        handleGetReportById();
-        handleGetRoom();
-        handleGetShift();
-        handleGetSubject();
-    }, [reportId]);
+        if (reportId) {
+            const fetchData = async () => {
+                try {
+                    const reportResponse = await ReportServices.getReportById(reportId);
+                    dispatch(setReportById(reportResponse.data));
+                    
+                    await Promise.all([
+                        RoomService.getAllRoom().then(res => dispatch(setRoom(res.data.data))),
+                        ShiftService.getCurrenShift(1, 10, "id", false).then(res => dispatch(setCurrenShifts(res.data.data))),
+                        SubjectService.getAllCurrentSubject().then(res => dispatch(setCurrentSubject(res.data.data))),
+                    ]);
+                } catch (error) {
+                    console.error("Error fetching data:", error);
+                }
+            };
 
-    // Effect to set selected values when reportById changes
+            fetchData();
+        }
+    }, [reportId, dispatch]);
+
     useEffect(() => {
         if (values) {
-            setSelectedSubject(values.subject);
-            setSelectedRoom(values.roomId);
-            setSelectedShift(values.shiftId);
-            setSelectedStudentNum(values.studentNum);
-            setSelectedDate(values.date);
+            form.setFieldsValue({
+                subject: values.subject?.id,
+                room: values.room?.map(room => room.id),
+                shift: values.shift?.id,
+                studentNum: values.studentNum,
+                date: values.reportDate, // Ensure this matches the data key
+            });
         }
-    }, [values]);
+    }, [values, form]);
 
     const handleSubmit = async () => {
-        const apiData = {
-            subjectId: selectedSubject,
-            roomIds: selectedRoom,
-            shiftId: selectedShift,
-            date: selectedDate,
-            studentNum: selectedStudentNum,
-        };
-
         try {
-            const res = await ReportServices.updateById(reportId , apiData);
+            const apiData = {
+                subjectId: form.getFieldValue('subject'),
+                roomIds: form.getFieldValue('room'),
+                shiftId: form.getFieldValue('shift'),
+                date: form.getFieldValue('date'),
+                studentNum: form.getFieldValue('studentNum'),
+            };
+
+            await ReportServices.updateById(reportId, apiData);
             message.success('Report updated');
-            dispatch(setReportById(res)); // Assuming res contains updated report data
-            handleOk();
+            handleOk(); // Close the modal after successful update
         } catch (error) {
             console.error('Error updating report:', error);
-            // Handle error scenario
+            message.error('Error updating report');
         }
     };
-    
 
     const handleOk = () => {
-        setIsOpenEdit(false);
-        if (onOk) {
-            onOk();
-        }
+        onOk(); // Call onOk passed as prop
     };
 
     const handleCancel = () => {
-        setIsOpenEdit(false);
-        if (onCancel) {
-            onCancel();
-        }
+        onCancel(); // Call onCancel passed as prop
     };
 
     return (
         <Modal title="Edit Report" visible={isOpen} onOk={handleSubmit} onCancel={handleCancel}>
-         {/* <Modal title="Edit Report" visible={isOpen} > */}
-            <Form>
+            <Form form={form} layout="vertical">
                 <Form.Item
-                    name="select1"
+                    name="subject"
                     label="Select Subject"
-                    hasFeedback
                     rules={[{ required: true, message: 'Subject is required' }]}
                 >
-                    <Select
-                        placeholder="Select subject"
-                        options={subjectOption}
-                    />
+                    <Select placeholder="Select subject">
+                        {subjectOptions?.map(item => (
+                            <Select.Option key={item.id} value={item.id}>
+                                {item.name}
+                            </Select.Option>
+                        ))}
+                    </Select>
                 </Form.Item>
                 <Form.Item
-                    name="select2"
+                    name="room"
                     label="Select Room"
-                    hasFeedback
                     rules={[{ required: true, message: 'Room is required' }]}
                 >
                     <Select
                         mode="multiple"
                         placeholder="Select room"
-                        options={roomOption}
-                    />
+                    >
+                        {roomOptions?.map(item => (
+                            <Select.Option key={item.id} value={item.id}>
+                                {item.name}
+                            </Select.Option>
+                        ))}
+                    </Select>
                 </Form.Item>
                 <Form.Item
-                    name="select3"
+                    name="shift"
                     label="Select Shift"
-                    hasFeedback
                     rules={[{ required: true, message: 'Shift is required' }]}
                 >
-                    <Select
-                        placeholder="Select shift"
-                        options={shiftOptions}
-                    />
+                    <Select placeholder="Select shift">
+                        {shiftOptions?.map(item => (
+                            <Select.Option key={item.id} value={item.id}>
+                                {item.name}
+                            </Select.Option>
+                        ))}
+                    </Select>
                 </Form.Item>
                 <Form.Item
                     name="studentNum"
                     label="Number of Students"
-                    hasFeedback
                     rules={[{ required: true, message: 'Number of students is required' }]}
                 >
                     <Input type="text" placeholder="Number of students" />
@@ -182,7 +133,6 @@ const EditReport = ({ isOpen, onOk, onCancel, reportId }) => {
                 <Form.Item
                     name="date"
                     label="Date"
-                    hasFeedback
                 >
                     <Input type="date" />
                 </Form.Item>

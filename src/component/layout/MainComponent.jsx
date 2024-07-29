@@ -7,18 +7,18 @@ import { isTokenValid } from '../../utils/auth'
 
 export default function MainComponent() {
 
-  const token = localStorage.getItem("token");
-useEffect(()=>{
-  if (token && !isTokenValid(token)) {
-    // Token has expired, perform logout or other action
-    console.log('Token has expired');
-    <NavLink to="/singin"/>
-    // You may want to trigger a logout action or redirect the user to the login page
-  } else {
-    // Token is still valid
-    console.log('Token is still valid');
-  }
-},[])
+//   const token = localStorage.getItem("token");
+// useEffect(()=>{
+//   if (token && !isTokenValid(token)) {
+//     // Token has expired, perform logout or other action
+//     console.log('Token has expired');
+//     <NavLink to="/sing-in"/>
+//     // You may want to trigger a logout action or redirect the user to the login page
+//   } else {
+//     // Token is still valid
+//     console.log('Token is still valid');
+//   }
+// },[])
 
   const user_role = localStorage.getItem("user_role")
   const isUser = user_role === "USER"

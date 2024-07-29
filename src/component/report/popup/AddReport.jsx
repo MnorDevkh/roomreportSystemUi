@@ -14,7 +14,6 @@ const AddReport = ({ isOpen, onOk, onCancel }) => {
     const [form] = Form.useForm();
     const dispatch = useDispatch();
 
-    // Fetch and dispatch room, shift, and subject data
     useEffect(() => {
         const fetchRoomData = async () => {
             try {
@@ -115,7 +114,6 @@ const AddReport = ({ isOpen, onOk, onCancel }) => {
                 message.error('Report creation failed - Conflict');
             } else {
                 console.error('Error:', error.message);
-                // Handle other types of errors here
             }
         }
     };

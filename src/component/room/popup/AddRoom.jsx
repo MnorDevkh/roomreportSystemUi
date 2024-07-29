@@ -2,7 +2,7 @@ import { Button, Form, Input, Modal, Select, message } from 'antd';
 import React, { useState } from 'react';
 import RoomService from '../../../redux/service/RoomService';
 
-const AddRoom = ({ isOpen, onCancel }) => {
+const AddRoom = ({ isOpen, onCancel,onOk }) => {
     // add model
     const [isModalOpen, setIsModalOpen] = useState(false);
     const handleCancel = () => {
@@ -12,17 +12,19 @@ const AddRoom = ({ isOpen, onCancel }) => {
             onCancel();
         }
     };
+    const handleOk =()=>{
+        onOk();
+    }
 
     const onFinish = (values) => {
         console.log(values)
-        RoomService.addNewShift(values).then((res) => {
+        RoomService.addRoom(values).then((res) => {
             setIsModalOpen(false);
             message.success("Add Room success")
-            handleCancel(); // You may want to set this to true after the form is successfully submitted.
+            handleOk(); 
         })
             .catch((error) => {
                 console.log("Error:", error);
-                // Handle error as needed
             });
     };
     const onFinishFailed = (errorInfo) => {
@@ -35,7 +37,7 @@ const AddRoom = ({ isOpen, onCancel }) => {
         floor: floor
     }
     return (
-        <div>
+        <>
             <Modal title="Add New Shift" visible={isOpen} onCancel={handleCancel} footer={null}>
                 <Form
                     name="basic"
@@ -80,9 +82,10 @@ const AddRoom = ({ isOpen, onCancel }) => {
                         ]}
                     >
                         <Select defaultValue={floor}>
-
-                        <Select.Option value="floor1">floor1</Select.Option>
+                            <Select.Option value="floor1">floor1</Select.Option>
                             <Select.Option value="floor2">floor2</Select.Option>
+                            <Select.Option value="floor2">floor3</Select.Option>
+                            <Select.Option value="floor2">floor4</Select.Option>
                         </Select>
                     </Form.Item>
                     <Form.Item
@@ -128,7 +131,7 @@ const AddRoom = ({ isOpen, onCancel }) => {
                     </Form.Item>
                 </Form>
             </Modal>
-        </div>
+        </>
     );
 }
 

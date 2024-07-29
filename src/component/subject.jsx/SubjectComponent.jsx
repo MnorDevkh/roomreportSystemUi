@@ -9,13 +9,10 @@ const SubjectComponent = () => {
     const dispatch = useDispatch();
     const resData = useSelector((state) => state.subject.currentUserSubjects)
 
-
-
     const handleGetSubject = () => {
         SubjectService.getAllCurrentSubject().then(res => {
             try {
-                console.log("getAllSubject", res.data)
-                // dispatch(setCurrentSubject(res.data.data))
+                dispatch(setCurrentSubject(res.data.data))
             } catch { }
         })
     }
@@ -24,9 +21,9 @@ const SubjectComponent = () => {
     }, [])
 
     const pagination = {
-        defaultPageSize: 2,
+        defaultPageSize: 10,
         showSizeChanger: true,
-        pageSizeOptions: ['10', '5', '2'],
+        pageSizeOptions: ['50', '20', '10'],
     };
     const columns = [
         {
@@ -46,7 +43,7 @@ const SubjectComponent = () => {
             dataIndex: 'date',
             sorter: {
                 compare: (a, b) => a.math - b.math,
-                multiple: 2,
+                multiple: 10,
             },
         },
     ];

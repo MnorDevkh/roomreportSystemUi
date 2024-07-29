@@ -13,17 +13,11 @@ const AllShiftLishComponent = () => {
     // get all shift
     const handleGetShift = () => {
         ShiftService.getAllShift().then(res => {
-            console.log("123res", res.data.data)
             dispatch(setAllShifts(res.data.data))
         })
     }
     useEffect(() => {
-
-            const intervalId = setInterval(() => {
-                handleGetShift();
-            }, 2000);
-            return () => clearInterval(intervalId);
-
+        handleGetShift();
     }, [])
     const pagination = {
         defaultPageSize: 10,
@@ -35,13 +29,13 @@ const AllShiftLishComponent = () => {
     const handleEdit = (id) => {
         setIsOpenEdit(true);
         setId(id)
-        console.log("id",id)
+        handleGetShift();
         
     }
     const handleDelete = (id) => {
         console.log(id)
         ShiftService.deleteById(id).then((res)=>{
-            
+            handleGetShift();
         })
     }
 
@@ -82,7 +76,6 @@ const AllShiftLishComponent = () => {
             ),
         },
     ];
-    console.log(resData)
     const data = resData.slice().reverse().map((item, index) => ({
         key: item.id,
         name: item.name,
@@ -100,20 +93,20 @@ const AllShiftLishComponent = () => {
 
     const handleOk = () => {
         setIsModalOpen(false);
-        // Additional logic when modal is OK
+        setIsOpenEdit(false);
+        handleGetShift();
     };
 
     const handleCancel = () => {
         setIsModalOpen(false);
         setIsOpenEdit(false)
-        // Additional logic when modal is canceled
     };
     return (
         <div>
             <Button type="default" onClick={() => setIsModalOpen(true)}>
                 Add New Shift
             </Button>
-            <Edit isOpen={isOpenEdit}  onCancel={handleCancel} id={id} />
+            <Edit isOpen={isOpenEdit} onOk={handleOk} onCancel={handleCancel} id={id} />
             <AddShift isOpen={isModalOpen} onOk={handleOk} onCancel={handleCancel} />
             <Table columns={columns} dataSource={data} onChange={onChange} pagination={pagination} />
         </div>

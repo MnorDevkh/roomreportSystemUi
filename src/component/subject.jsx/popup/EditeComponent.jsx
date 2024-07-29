@@ -2,37 +2,50 @@ import { Button, Form, Input, Layout, Modal } from 'antd';
 import React, { useEffect, useState } from 'react';
 import SubjectService from '../../../redux/service/SubjectSevice';
 
-const EditeComponent = ({ isOpen, onCancel, id}) => {
-    const [isOpenEdit, setIsOpenEdit] = useState(false);
+const EditeComponent = ({ isOpen, onOk, onCancel, id }) => {
+    const [form] = Form.useForm();
+
     const onFinishFailed = (errorInfo) => {
         console.log('Failed:', errorInfo);
     };
+    useEffect(()=>{
+        if (id) {
+        SubjectService.getById(id).then((res) => {
+            form.setFieldsValue(res.data);
+        }).catch((error) => {
+            console.error("Error fetching shift details:", error);
+        });
+    }
+}, [id, form]);
+
+    const handleOk = () => {
+        form.submit();
+    };
 
     const handleCancel = () => {
-        setIsOpenEdit(false);
-        // You can call the onCancel function here if needed
         if (onCancel) {
             onCancel();
         }
     };
-    const onFinish = (value) => {
-        console.log(id)
-        SubjectService.updateById(id,value).then((res) => {
-          setIsOpenEdit(false);
-          handleCancel(); // You may want to set this to true after the form is successfully submitted.
+
+    const onFinish = (values) => {
+        console.log(values, "1233");
+        SubjectService.updateById(id, values).then((res) => {
+            console.log(">>", res);
+            if (onOk) {
+                onOk();
+            }
         })
         .catch((error) => {
-          console.log("Error:", error);
-          // Handle error as needed
+
         });
-      };
-      useEffect(()=>{
-        onFinish();
-      })
+    };
+
     return (
         <div>
-           <Modal title="Edit Subject" visible={isOpen} onCancel={handleCancel} footer={null}>
+            <Modal title="Edit Subject" visible={isOpen} onOk={handleOk} onCancel={handleCancel}>
                 <Form
+                    form={form}
                     name="basic"
                     labelCol={{
                         span: 8,
@@ -62,30 +75,11 @@ const EditeComponent = ({ isOpen, onCancel, id}) => {
                     >
                         <Input />
                     </Form.Item>
-
                     <Form.Item
                         label="Description"
                         name="description"
-                        rules={[
-                            {
-                                required: true,
-                                message: 'Please input your description!',
-                            },
-                        ]}
                     >
                         <Input />
-                    </Form.Item>
-
-
-                    <Form.Item
-                        wrapperCol={{
-                            offset: 8,
-                            span: 16,
-                        }}
-                    >
-                        <Button type="default" htmlType="submit">
-                            Submit
-                        </Button>
                     </Form.Item>
                 </Form>
             </Modal>

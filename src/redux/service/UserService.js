@@ -34,5 +34,14 @@ const deleteSubjectFromUser = async (userId,subjectId) => {
         throw error; // Propagate the error to the calling code
     }
 };
- const UserService = {getAllUser,addShifToUser,addSubjectToUser,deleteShiftFromUser,deleteSubjectFromUser,getUserById};
+const updateById = async (id,data)=>{
+    try {
+        const response = await api2.put(`/user/update?id=${id}`,data);
+        return response.data;
+    } catch (error) {
+        console.error('Error deleting shift:', error);
+        throw error; // Propagate the error to the calling code
+    }
+}
+ const UserService = {getAllUser,addShifToUser,addSubjectToUser,deleteShiftFromUser,deleteSubjectFromUser,getUserById,updateById};
  export default UserService

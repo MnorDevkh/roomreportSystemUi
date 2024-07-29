@@ -3,16 +3,20 @@ import { Modal, Form, Select, Button, Input, Space, Switch, Alert, notification,
 import ShiftService from '../../../redux/service/ShiftService';
 
 
-const AddShift = ({ isOpen, onCancel }) => {
+const AddShift = ({ isOpen, onCancel,onOk }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const onFinishFailed = (errorInfo) => {
     console.log('Failed:', errorInfo);
   };
-  
+  const handleOk = () => {
+    setIsModalOpen(false);
+    if (onOk) {
+      onOk();
+    }
+  };
 
   const handleCancel = () => {
     setIsModalOpen(false);
-    // You can call the onCancel function here if needed
     if (onCancel) {
       onCancel();
     }
@@ -23,7 +27,7 @@ const AddShift = ({ isOpen, onCancel }) => {
     ShiftService.addNewShift(values).then((res) => {
       setIsModalOpen(false);
      message.success("add shift success!")
-      handleCancel(); // You may want to set this to true after the form is successfully submitted.
+     handleOk(); // You may want to set this to true after the form is successfully submitted.
     })
     .catch((error) => {
       console.log("Error:", error);

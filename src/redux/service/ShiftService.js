@@ -15,6 +15,14 @@ const getAllShift = async () => {
     return api2.get(`/shift/all`);
 };
 
+const getShiftByUser = async (userId) => {
+    return api2.get(`/shift/byUser?userId=${userId}`);
+};
+
+const getShiftByid = async (id)=>{
+    return api2.get(`/shift/getById?id=${id}`)
+}
+
 const addNewShift = async (values) => {
     const response = await api2.post(`/shift/add`, values);
     return response.data;
@@ -32,5 +40,5 @@ const updateById = async (id, data) => {
     });
 };
 
-const ShiftService = { getAllShift, getCurrenShift, addNewShift, deleteById, updateById };
+const ShiftService = { getAllShift, getCurrenShift, addNewShift, deleteById, updateById, getShiftByid, getShiftByUser };
 export default ShiftService;

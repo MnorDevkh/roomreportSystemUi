@@ -18,6 +18,7 @@ import RoomComponent from './component/room/RoomComponent';
 import AllUserComponent from './component/user/AllUserComponent';
 import SignUpComponents from './component/signUp/SignUpComponents';
 import ExamFormComponent from './component/examForm/ExamFormComponent';
+import EditUserComponent from './component/user/EditUserComponent';
 
 function App() {
   const user = localStorage.getItem("token")
@@ -27,7 +28,7 @@ function App() {
   return (
     <>
       <Routes >
-        <Route path='/' element={<HomePage />} />
+        {/* <Route path='/' element={<HomePage />} /> */}
         <Route path='/sign-in' element={<LoginComponent />} />
         <Route path='/sign-up' element={<SignUpComponents />} />
         <Route element={<ProtectedRoute isLogged={localStorage.getItem("token") ? true : false} />}>
@@ -43,6 +44,7 @@ function App() {
             <Route path='/subject-list' element={<AllSubjectComponent/>} />
             <Route path='/room-list' element={<RoomComponent/>} />
             <Route path='/user-list' element={<AllUserComponent/>} />
+            <Route path='/edit-user/:userId' element={<EditUserComponent />} />
             <Route path='/exam_form' element={<ExamFormComponent/>} />
           </Route>
         </Route>

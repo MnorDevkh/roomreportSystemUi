@@ -8,108 +8,35 @@ import AddShiftToUserComponent from './popup/AddShiftToUserComponent';
 import EditComponent from './popup/EditComponent';
 import DeleteShiftFromUserPopup from './popup/DeleteShiftFromUserPopup';
 import DeleteSubjectFromUserPopup from './popup/DeleteSubjectFromUserPopup';
+import { useNavigate } from 'react-router-dom';
 
 const AllUserComponent = () => {
     const dispatch = useDispatch();
-    const [dateRange, setDateRange] = useState(null);
-    const [isModalOpenSubject, setIsModalOpenSubject] = useState(false);
-    const [isModalOpenShift, setIsModalOpenShift] = useState(false);
-    const [isModalOpenEdit, setIsModalOpenEdit] = useState(false);
-    const [isModalOpenShiftDelete, setIsModalOpenShiftDelete] = useState(false);
-    const [isModalOpenSubjectDelete, setIsModalOpenSubjectDelete] = useState(false);
-    
-    const [filteredData, setFilteredData] = useState(null);
-    const resData = useSelector((state) => state.user.allUser);
-    const [userIdForShift, setUserIdForShift] = useState(null);
-    const [userIdForDeletShift, setUserDeletIdForShift] = useState(null);
-    const [userIdForDeletSubject, setuserIdForDeleteSubject] = useState(null);
-    
-    const [userIdForSubject, setUserIdFSubject] = useState(null);
-    const [userId, setuserId] = useState(null)
-    console.log("resData", resData);
-    // get User
+    const navigate = useNavigate();
+    const displayData = useSelector((state) => state.user.allUser);
     const handleGetUser = () => {
         try {
             UserService.getAllUser().then((res) => {
                 dispatch(setAllUser(res.data));
-                console.log("res", res.data);
             });
         } catch (error) {
             console.log("Error fetching report:", error);
         }
     };
-    // const handleFilteredData = () => {
-    //     try {
-    //         if (dateRange) {
-    //             const startDate = dateRange[0].format('YYYY-MM-DD');
-    //             const endDate = dateRange[1].format('YYYY-MM-DD');
-    //             const filteredReports = resData.filter(
-    //                 (item) => item.date >= startDate && item.date <= endDate
-    //             );
-    //             setFilteredData(filteredReports);
-    //         } else {
-    //             setFilteredData(null);
-    //         }
-    //     } catch (error) {
-    //         console.log("Error filtering reports:", error);
-    //     }
-    // }
+
 
     useEffect(() => {
         handleGetUser();
     }, []);
 
-    const displayData = dateRange ? filteredData : resData;
-
-
-    // if (!displayData) {
-    //     // Handle the case where resData is undefined or null
-    //     return <p>Loading...</p>;
-    // }
-
-
-    // add model
-    const handleCancel = () => {
-        setIsModalOpenShift(false);
-        setIsModalOpenSubject(false);
-        setIsModalOpenShiftDelete(false)
-        setIsModalOpenSubjectDelete(false)
-      
-    };
-    const handleShiftClick = (userId) => {
-        setIsModalOpenShift(true);
-        setUserIdForShift(userId);
-    };
-    const handleDeleteShift = (userId) => {
-        setIsModalOpenShiftDelete(true);
-        setUserDeletIdForShift(userId)
-        console.log("userId", userId)
-    }
-    const handleDeleteSubject = (userId) => {
-        setIsModalOpenSubjectDelete(true);
-        setuserIdForDeleteSubject(userId)
-        console.log("userId", userId)
-    }
-    
     const handleEdit = (userId) => {
-        console.log("userId", userId)
-        setIsModalOpenEdit(true);
-        setuserId(userId);
+        navigate(`/edit-user/${userId}`);
     };
 
-
-    const handleSubjectClick = (userId) => {
-        setIsModalOpenSubject(true);
-        setUserIdFSubject(userId)
-    };
     return (
         <div>
             <div className='flex'>
-                <EditComponent isOpen={isModalOpenEdit} onCancel={handleCancel} userId={userId} />
-                <AddSubjectToUserComponent isOpen={isModalOpenSubject} onCancel={handleCancel} userIdForSubject={userIdForSubject} />
-                <AddShiftToUserComponent isOpen={isModalOpenShift} onCancel={handleCancel} userIdForShift={userIdForShift} />
-                <DeleteShiftFromUserPopup isOpen={isModalOpenShiftDelete} onCancel={handleCancel} userIdForShift={userIdForDeletShift} />
-                <DeleteSubjectFromUserPopup isOpen={isModalOpenSubjectDelete} onCancel={handleCancel} userIdForSubject={userIdForDeletSubject} />
+            
                 <div className='m-left'>
                     {displayData && (
                         <Statistic
